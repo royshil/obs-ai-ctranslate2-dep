@@ -42,7 +42,7 @@ if ($cudaBuild -ne $null) {
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
     "-DCMAKE_HIP_ARCHITECTURES=`"gfx908;gfx90a;gfx942;gfx1030;gfx1100;gfx1200;gfx1201;gfx803;gfx900;gfx906;gfx950;gfx1010;gfx1011;gfx1012;gfx1031;gfx1032;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152`" " +
-    "-DCMAKE_GENERATOR=Unix Makefiles " +
+    "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
     "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe'"
 } else {
