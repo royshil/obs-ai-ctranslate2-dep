@@ -40,9 +40,11 @@ if ($cudaBuild -ne $null) {
   # Supported GPU targets: gfx908 gfx90a gfx942 gfx1030 gfx1100 gfx1200 gfx1201
   # Unsupported but possibly usable GPU targets: gfx803 gfx900 gfx906 gfx1010 gfx1011 gfx1012 gfx1031 gfx1032 gfx1101 gfx1102 gfx1150 gfx1151 gfx1152
   # Non-working GPU targets: gfx950
+  $gpuTargets = "`"gfx908;gfx90a;gfx942;gfx1030;gfx1100;gfx1200;gfx1201;gfx803;gfx900;gfx906;gfx1010;gfx1011;gfx1012;gfx1031;gfx1032;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152`""
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
-    "-DCMAKE_HIP_ARCHITECTURES=`"gfx908;gfx90a;gfx942;gfx1030;gfx1100;gfx1200;gfx1201;gfx803;gfx900;gfx906;gfx1010;gfx1011;gfx1012;gfx1031;gfx1032;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152`" " +
+    "-DCMAKE_HIP_ARCHITECTURES=$gpuTargets " +
+    "-DGPU_TARGETS=$gpuTargets " +
     "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
     "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe'"
