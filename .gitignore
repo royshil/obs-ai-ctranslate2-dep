@@ -5,6 +5,7 @@
 !build_sp_macos.sh
 !build_ct2_windows.ps1
 !build_sp_windows.ps1
+!setup_cuda.ps1
 !.gitignore
 !LICENSE
 !README.md

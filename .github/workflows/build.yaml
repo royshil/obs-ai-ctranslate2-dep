@@ -94,12 +94,18 @@ jobs:
           echo "version=$version" > "$GITHUB_OUTPUT"
         id: "get-version"
 
-      - uses: Jimver/cuda-toolkit@v0.2.14
-        if: matrix.cuda != 'cpu'
+      - name: Setup CUDA Toolkit
+        if: ${{ matrix.cuda != 'cpu' }}
         id: cuda-toolkit
-        with:
-          cuda: ${{ matrix.cuda }}
-          method: 'local'
+        shell: pwsh
+        run: ./setup_cuda.ps1
+        env:
+            INPUT_CUDA_VERSION: ${{ matrix.cuda }}
+
+      - name: Set CUDA_TOOLKIT_ROOT_DIR if CUDA is installed
+        if: ${{ matrix.cuda == 'cpu' }}
+        run: |
+          "CUDA_TOOLKIT_ROOT_DIR=$env:CUDA_PATH" >> $env:GITHUB_ENV
 
       - uses: "actions/checkout@v4"
         with:
