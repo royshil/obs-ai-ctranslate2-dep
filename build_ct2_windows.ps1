@@ -48,7 +48,8 @@ if ($cudaBuild -ne $null) {
     "-DGPU_TARGETS=$gpuTargets " +
     "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
-    "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe'"
+    "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe' " +
+    "-DCMAKE_CXX_FLAGS=`"-Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-literal-operator -Wno-ignored-attributes -Wno-ignored-pragmas -Wno-unused-parameter -Wno-unused-result -Wno-unused-value -Wno-unused-variable -Wno-reorder-ctor`""
   $env:ROCM_PATH = $env:HIP_PATH
 } else {
   $accelFlag = "-DWITH_CUDA=OFF -DWITH_HIP=OFF"
