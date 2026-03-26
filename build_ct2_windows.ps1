@@ -15,8 +15,8 @@ git checkout "v$Version"
 git submodule update --init --recursive
 
 # download OpenBLAS
-$OpenBLASVersion = "0.3.26"
-Invoke-WebRequest -Uri https://github.com/xianyi/OpenBLAS/releases/download/v$OpenBLASVersion/OpenBLAS-$OpenBLASVersion-x64.zip `
+$OpenBLASVersion = "0.3.32"
+Invoke-WebRequest -Uri https://github.com/OpenMathLib/OpenBLAS/releases/download/v$OpenBLASVersion/OpenBLAS-$OpenBLASVersion-x64.zip `
   -OutFile OpenBLAS-$OpenBLASVersion-x64.zip
 Expand-Archive OpenBLAS-$OpenBLASVersion-x64.zip -DestinationPath OpenBLAS-$OpenBLASVersion-x64 -Force
 Remove-Item OpenBLAS-$OpenBLASVersion-x64.zip
