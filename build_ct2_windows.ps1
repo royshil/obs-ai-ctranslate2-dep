@@ -37,10 +37,11 @@ if ($cudaBuild -ne $null) {
   # List supported ROCm GPU targets in ROCm 6.4.2, and also some unsupported ones that might work
   # See https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html and https://rocm.docs.amd.com/en/docs-6.4.2/reference/gpu-arch-specs.html
   # gfx950 is supported in 7.1.0 but not 6.4.2 that we're using
-  # Supported GPU targets: gfx908 gfx90a gfx942 gfx1030 gfx1100 gfx1200 gfx1201
-  # Unsupported but possibly usable GPU targets: gfx803 gfx900 gfx906 gfx1010 gfx1011 gfx1012 gfx1031 gfx1032 gfx1101 gfx1102 gfx1150 gfx1151 gfx1152
-  # Non-working GPU targets: gfx950
-  $gpuTargets = "`"gfx908;gfx90a;gfx942;gfx1030;gfx1100;gfx1200;gfx1201;gfx803;gfx900;gfx906;gfx1010;gfx1011;gfx1012;gfx1031;gfx1032;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152`""
+  # Fully supported GPU targets (runtime & SDK): gfx1030 gfx1100 gfx1101 gfx1102 gfx1151 gfx1200 gfx1201
+  # Runtime supported GPU targets: gfx1031 gfx1032
+  # Unsupported GPU targets that probably won't work: gfx803 gfx900 gfx906 gfx908 gfx90a gfx942 gfx950 gfx1010 gfx1011 gfx1012 gfx1150 gfx1152
+  # Non-working GPU targets that have caused build failures: gfx950 gfx1010
+  $gpuTargets = "`"gfx1030;gfx1031;gfx1032;gfx1100;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152;gfx1200;gfx1201`""
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
     "-DCMAKE_HIP_ARCHITECTURES=$gpuTargets " +
