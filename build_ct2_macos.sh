@@ -4,7 +4,7 @@ set -euo pipefail
 CONFIG=${1?}
 PKG_VERSION=${2?}
 
-VERSION="4.1.1"
+VERSION="4.7.1"
 
 if [ ! -d "CTranslate2-$VERSION" ]; then
   # Clone CTranslate2 repo.
@@ -21,7 +21,7 @@ function build_for_arch() {
   ARCH=$1
   echo "Building for ${ARCH}"
   cmake . -B build_${ARCH}_${CONFIG} \
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
     -DBUILD_SHARED_LIBS=OFF \
     -DWITH_ACCELERATE=ON \
     -DOPENMP_RUNTIME=NONE \
@@ -39,7 +39,8 @@ function build_for_arch() {
     -DBUILD_CLI=OFF \
     -DWITH_OPENBLAS=OFF \
     -DCMAKE_GENERATOR=Xcode \
-    -DCMAKE_BUILD_TYPE=${CONFIG}
+    -DCMAKE_BUILD_TYPE=${CONFIG} \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
   cmake --build build_${ARCH}_${CONFIG} --config ${CONFIG} -- -arch ${ARCH} ONLY_ACTIVE_ARCH=YES
   mkdir -p dist/${ARCH}/${CONFIG}

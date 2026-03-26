@@ -12,7 +12,7 @@ on:
 
 jobs:
   BuildMac:
-    runs-on: "macos-13"
+    runs-on: "macos-15-intel" # CT2 only builds x86_64 correctly on an x86_64 host
 
     strategy:
       matrix:
@@ -28,6 +28,11 @@ jobs:
           fi
           echo "version=$version" > "$GITHUB_OUTPUT"
         id: "get-version"
+
+      - uses: maxim-lobanov/setup-xcode@v1.6.0
+        id: set-xcode-version
+        with:
+          xcode-version: 16.2
 
       - uses: "actions/checkout@v4"
 
@@ -94,16 +99,22 @@ jobs:
           echo "version=$version" > "$GITHUB_OUTPUT"
         id: "get-version"
 
-      - uses: Jimver/cuda-toolkit@v0.2.14
-        if: matrix.cuda != 'cpu'
-        id: cuda-toolkit
-        with:
-          cuda: ${{ matrix.cuda }}
-          method: 'local'
-
       - uses: "actions/checkout@v4"
         with:
           submodules: "recursive"
+
+      - name: Setup CUDA Toolkit
+        if: ${{ matrix.cuda != 'cpu' }}
+        id: cuda-toolkit
+        shell: pwsh
+        run: ./setup_cuda.ps1
+        env:
+            INPUT_CUDA_VERSION: ${{ matrix.cuda }}
+
+      - name: Set CUDA_TOOLKIT_ROOT_DIR if CUDA is installed
+        if: ${{ matrix.cuda == 'cpu' }}
+        run: |
+          "CUDA_TOOLKIT_ROOT_DIR=$env:CUDA_PATH" >> $env:GITHUB_ENV
 
       - name: "Run Build CT2 Windows ps1"
         run: "./build_ct2_windows.ps1 -Configuration ${{ matrix.config }} -CudaVersionOrCpu ${{ matrix.cuda }}"

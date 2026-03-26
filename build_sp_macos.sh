@@ -3,7 +3,7 @@ set -euo pipefail
 
 CONFIG=${1?}
 PKG_VERSION=${2?}
-VERSION="0.2.0"
+VERSION="0.2.1"
 
 if [ ! -d "sentencepiece-$VERSION" ]; then
   # Clone sentencepiece repo.
