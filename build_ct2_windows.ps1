@@ -68,10 +68,7 @@ if ($cudaBuild -ne $null) {
   $cmakeArgs += ("-DWITH_CUDA=OFF", "-DWITH_HIP=OFF")
 }
 
-$command = "cmake . -B build_$Configuration " + @accelArgs
-
-Write-Host $command
-Invoke-Expression $command
+cmake . -B build_$Configuration @accelArgs
 
 cmake --build build_$Configuration --config $Configuration
 
