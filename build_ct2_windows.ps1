@@ -6,7 +6,7 @@ Param(
 # stop on error
 $ErrorActionPreference = "Stop"
 
-$Version = "4.1.1"
+$Version = "4.7.1"
 
 # Clone CTranslate2 repo.
 git clone https://github.com/OpenNMT/CTranslate2.git "CTranslate2-$Version"

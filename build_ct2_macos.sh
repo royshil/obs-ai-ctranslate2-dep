@@ -4,7 +4,7 @@ set -euo pipefail
 CONFIG=${1?}
 PKG_VERSION=${2?}
 
-VERSION="4.1.1"
+VERSION="4.7.1"
 
 if [ ! -d "CTranslate2-$VERSION" ]; then
   # Clone CTranslate2 repo.

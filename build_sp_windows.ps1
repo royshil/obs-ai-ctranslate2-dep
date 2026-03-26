@@ -1,6 +1,6 @@
 Param($Configuration)
 
-$Version = "0.2.0"
+$Version = "0.2.1"
 
 # Clone CTranslate2 repo.
 git clone https://github.com/google/sentencepiece.git "sentencepiece-$Version"
