@@ -45,6 +45,7 @@ if ($cudaBuild -ne $null) {
     "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
     "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe'"
+  $env:ROCM_PATH = $env:HIP_PATH
 } else {
   $accelFlag = "-DWITH_CUDA=OFF -DWITH_HIP=OFF"
 }
