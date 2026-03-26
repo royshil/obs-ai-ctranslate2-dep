@@ -99,6 +99,10 @@ jobs:
           echo "version=$version" > "$GITHUB_OUTPUT"
         id: "get-version"
 
+      - uses: "actions/checkout@v4"
+        with:
+          submodules: "recursive"
+
       - name: Setup CUDA Toolkit
         if: ${{ matrix.cuda != 'cpu' }}
         id: cuda-toolkit
@@ -111,10 +115,6 @@ jobs:
         if: ${{ matrix.cuda == 'cpu' }}
         run: |
           "CUDA_TOOLKIT_ROOT_DIR=$env:CUDA_PATH" >> $env:GITHUB_ENV
-
-      - uses: "actions/checkout@v4"
-        with:
-          submodules: "recursive"
 
       - name: "Run Build CT2 Windows ps1"
         run: "./build_ct2_windows.ps1 -Configuration ${{ matrix.config }} -CudaVersionOrCpu ${{ matrix.cuda }}"
