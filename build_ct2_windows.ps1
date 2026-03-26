@@ -1,6 +1,6 @@
 Param(
     $Configuration,
-    $CudaVersionOrCpu
+    $Acceleration
 )
 
 # stop on error
@@ -29,11 +29,20 @@ if ($Configuration -eq "Release") {
 
 # if CUDA_PATH exists on env variables, then build with CUDA
 $cudaBuild = [System.Environment]::GetEnvironmentVariable("CUDA_PATH", "Machine")
+$hipBuild = [System.Environment]::GetEnvironmentVariable("HIP_PATH", "Machine")
 if ($cudaBuild -ne $null) {
   $cudaPathUnix = $cudaBuild -replace '\\', '/'
-  $cudaFlag = " -DWITH_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`""
+  $accelFlag = " -DWITH_CUDA=ON -DWITH_FLASH_ATTN=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`" -DWITH_HIP=OFF"
+} elseif ($hipBuild -ne $null) {
+  # List supported ROCm GPU targets in ROCm 6.4.2, and also some unsupported ones that might work
+  # See https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html and https://rocm.docs.amd.com/en/docs-6.4.2/reference/gpu-arch-specs.html
+  # gfx950 is supported in 7.1.0 but not 6.4.2 that we're using
+  list(APPEND SUPPORTED_AMDGPU_TARGETS gfx908 gfx90a gfx942 gfx1030 gfx1100 gfx1200 gfx1201)
+  list(APPEND UNSUPPORTED_AMDGPU_TARGETS gfx803 gfx900 gfx906 gfx950 gfx1010 gfx1011 gfx1012 gfx1031 gfx1032 gfx1101 gfx1102 gfx1150 gfx1151 gfx1152)
+  list(APPEND AMDGPU_TARGETS ${SUPPORTED_AMDGPU_TARGETS} ${UNSUPPORTED_AMDGPU_TARGETS})
+  $accelFlag = " -DWITH_CUDA=OFF -DWITH_HIP=ON -DCMAKE_HIP_ARCHITECTURES=${AMDGPU_TARGETS}"
 } else {
-  $cudaFlag = "-DWITH_CUDA=OFF"
+  $accelFlag = "-DWITH_CUDA=OFF -DWITH_HIP=OFF"
 }
 
 $command = "cmake . -B build_$Configuration " +
@@ -51,7 +60,7 @@ $command = "cmake . -B build_$Configuration " +
     "-DWITH_OPENBLAS=ON " +
     "-DOPENBLAS_INCLUDE_DIR=`"OpenBLAS-$OpenBLASVersion-x64\include`" " +
     "-DOPENBLAS_LIBRARY=`"OpenBLAS-$OpenBLASVersion-x64\lib\libopenblas.dll.a`" " +
-    "$extraFlag  $cudaFlag"
+    "$extraFlag  $accelFlag"
 
 Write-Host $command
 Invoke-Expression $command
@@ -65,16 +74,16 @@ cmake --install build_$Configuration --config $Configuration --prefix "..\dist\$
 New-Item -ItemType Directory -Force -Path "..\dist\$Configuration\bin"
 Copy-Item -Force "OpenBLAS-$OpenBLASVersion-x64\bin\libopenblas.dll" "..\dist\$Configuration\bin\libopenblas.dll"
 
-$cudaConfig = "-cpu"
+$accelConfig = "-cpu"
 
 # copy the cublas dll if this is a cuda build
 if ($cudaBuild -ne $null) {
   Copy-Item -Force "$cudaBuild\bin\cublas*.dll" -Destination "..\dist\$Configuration\bin\"
-  $cudaConfig = "-cuda$CudaVersionOrCpu"
+  $accelConfig = "-cuda12.8.1"
 }
 
-Remove-Item -Force "..\dist\libctranslate2-windows-$Version-$Configuration$cudaConfig.zip" -ErrorAction SilentlyContinue
-Compress-Archive "..\dist\$Configuration\*" "..\dist\libctranslate2-windows-$Version-$Configuration$cudaConfig.zip" -Verbose
+Remove-Item -Force "..\dist\libctranslate2-windows-$Version-$Configuration$accelConfig.zip" -ErrorAction SilentlyContinue
+Compress-Archive "..\dist\$Configuration\*" "..\dist\libctranslate2-windows-$Version-$Configuration$accelConfig.zip" -Verbose
 
 Set-Location "..\"
 Remove-Item "CTranslate2-$Version" -Recurse -Force
