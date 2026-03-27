@@ -56,6 +56,7 @@ if ($cudaBuild -ne $null) {
 }
 
 $command = "cmake . -B build_$Configuration " +
+    "-DCMAKE_POLICY_VERSION_MINIMUM=`"3.5`" " +
     "-DBUILD_SHARED_LIBS=ON " +
     "-DOPENMP_RUNTIME=COMP " +
     "-DWITH_MKL=OFF " +
