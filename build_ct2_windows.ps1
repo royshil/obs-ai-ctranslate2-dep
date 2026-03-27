@@ -27,13 +27,10 @@ if ($Configuration -eq "Release") {
   $extraFlag = "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebugDLL"
 }
 
-# if CUDA_PATH exists on env variables, then build with CUDA
-$cudaBuild = [System.Environment]::GetEnvironmentVariable("CUDA_PATH", "Machine")
-$hipBuild = [System.Environment]::GetEnvironmentVariable("HIP_PATH", "Machine")
-if ($cudaBuild -ne $null) {
-  $cudaPathUnix = $cudaBuild -replace '\\', '/'
+if ($Acceleration -eq "nvidia") {
+  $cudaPathUnix = $env:CUDA_PATH -replace '\\', '/'
   $accelFlag = " -DWITH_CUDA=ON -DWITH_FLASH_ATTN=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`" -DWITH_HIP=OFF"
-} elseif ($hipBuild -ne $null) {
+} elseif ($Acceleration -eq "amd") {
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
     "-DCMAKE_HIP_ARCHITECTURES=`"$env:AMD_GPU_TARGETS`" " +
