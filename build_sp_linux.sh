@@ -21,7 +21,8 @@ function build_for_arch() {
   echo "Building for ${ARCH}"
   cmake . -B build_${ARCH}_${CONFIG} \
     -DSPM_ENABLE_SHARED=OFF \
-    -DCMAKE_BUILD_TYPE=${CONFIG}
+    -DCMAKE_BUILD_TYPE=${CONFIG} \
+    -DCMAKE_CXX_FLAGS="-fPIC"
 
   cmake --build build_${ARCH}_${CONFIG} --config ${CONFIG} --parallel
   cmake --install build_${ARCH}_${CONFIG} --config ${CONFIG} --prefix ../dist/${ARCH}/${CONFIG}

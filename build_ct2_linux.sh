@@ -21,7 +21,7 @@ cd CTranslate2-$VERSION
 if [[ ${ACCEL} = "nvidia" ]]; then
   additional_args="-DWITH_CUDA=ON -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=OFF"
 elif [[ ${ACCEL} = "amd" ]]; then
-  additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=ON"
+  additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=ON -DCMAKE_C_COMPILER=hipcc -DCMAKE_CXX_COMPILER=hipcc"
 else
   additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=OFF"
 fi
@@ -43,6 +43,7 @@ function build_for_arch() {
     -DBUILD_CLI=OFF \
     -DBUILD_TESTS=OFF \
     -DCMAKE_BUILD_TYPE=${CONFIG} \
+    -DCMAKE_CXX_FLAGS="-fPIC" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     ${additional_args}
 
