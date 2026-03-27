@@ -1,6 +1,6 @@
 Param(
     $Configuration,
-    $CudaVersionOrCpu
+    $Acceleration
 )
 
 # stop on error
@@ -29,34 +29,40 @@ if ($Configuration -eq "Release") {
 
 # if CUDA_PATH exists on env variables, then build with CUDA
 $cudaBuild = [System.Environment]::GetEnvironmentVariable("CUDA_PATH", "Machine")
+$hipBuild = [System.Environment]::GetEnvironmentVariable("HIP_PATH", "Machine")
 if ($cudaBuild -ne $null) {
   $cudaPathUnix = $cudaBuild -replace '\\', '/'
-  $cudaFlag = " -DWITH_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`""
+  $accelFlag = " -DWITH_CUDA=ON -DWITH_FLASH_ATTN=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`" -DWITH_HIP=OFF"
+} elseif ($hipBuild -ne $null) {
+  $accelFlag = " -DWITH_CUDA=OFF " +
+    "-DWITH_HIP=ON " +
+    "-DCMAKE_HIP_ARCHITECTURES=`"$env:AMD_GPU_TARGETS`" " +
+    "-DGPU_TARGETS=`"$env:AMD_GPU_TARGETS`" " +
+    "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
+    "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
+    "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe' " +
+    "-DCMAKE_CXX_FLAGS=`"-Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-literal-operator -Wno-ignored-attributes -Wno-ignored-pragmas -Wno-unused-parameter -Wno-unused-result -Wno-unused-value -Wno-unused-variable -Wno-reorder-ctor`""
+  $env:ROCM_PATH = $env:HIP_PATH
 } else {
-  $cudaFlag = "-DWITH_CUDA=OFF"
+  $accelFlag = "-DWITH_CUDA=OFF -DWITH_HIP=OFF"
 }
 
 $command = "cmake . -B build_$Configuration " +
+    "-DCMAKE_POLICY_VERSION_MINIMUM=`"3.5`" " +
     "-DBUILD_SHARED_LIBS=ON " +
     "-DOPENMP_RUNTIME=COMP " +
     "-DWITH_MKL=OFF " +
-    "-DWITH_EXAMPLES=OFF " +
-    "-DWITH_TFLITE=OFF " + 
-    "-DWITH_TRT=OFF " + 
-    "-DWITH_PYTHON=OFF " + 
-    "-DWITH_SERVER=OFF " + 
-    "-DWITH_COVERAGE=OFF " + 
-    "-DWITH_PROFILING=OFF " +
+    "-DENABLE_PROFILING=OFF " +
     "-DBUILD_CLI=OFF " +
     "-DWITH_OPENBLAS=ON " +
     "-DOPENBLAS_INCLUDE_DIR=`"OpenBLAS-$OpenBLASVersion-x64\include`" " +
     "-DOPENBLAS_LIBRARY=`"OpenBLAS-$OpenBLASVersion-x64\lib\libopenblas.dll.a`" " +
-    "$extraFlag  $cudaFlag"
+    "$extraFlag  $accelFlag"
 
 Write-Host $command
 Invoke-Expression $command
 
-cmake --build build_$Configuration --config $Configuration
+cmake --build build_$Configuration --config $Configuration --parallel
 
 New-Item -ItemType Directory -Force -Path "..\dist\"
 
@@ -65,16 +71,16 @@ cmake --install build_$Configuration --config $Configuration --prefix "..\dist\$
 New-Item -ItemType Directory -Force -Path "..\dist\$Configuration\bin"
 Copy-Item -Force "OpenBLAS-$OpenBLASVersion-x64\bin\libopenblas.dll" "..\dist\$Configuration\bin\libopenblas.dll"
 
-$cudaConfig = "-cpu"
+$accelConfig = "-cpu"
 
 # copy the cublas dll if this is a cuda build
 if ($cudaBuild -ne $null) {
   Copy-Item -Force "$cudaBuild\bin\cublas*.dll" -Destination "..\dist\$Configuration\bin\"
-  $cudaConfig = "-cuda$CudaVersionOrCpu"
+  $accelConfig = "-cuda12.8.1"
 }
 
-Remove-Item -Force "..\dist\libctranslate2-windows-$Version-$Configuration$cudaConfig.zip" -ErrorAction SilentlyContinue
-Compress-Archive "..\dist\$Configuration\*" "..\dist\libctranslate2-windows-$Version-$Configuration$cudaConfig.zip" -Verbose
+Remove-Item -Force "..\dist\libctranslate2-windows-$Version-$Configuration$accelConfig.zip" -ErrorAction SilentlyContinue
+Compress-Archive "..\dist\$Configuration\*" "..\dist\libctranslate2-windows-$Version-$Configuration$accelConfig.zip" -Verbose
 
 Set-Location "..\"
 Remove-Item "CTranslate2-$Version" -Recurse -Force

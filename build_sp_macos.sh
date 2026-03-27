@@ -25,7 +25,7 @@ function build_for_arch() {
     -DCMAKE_GENERATOR=Xcode \
     -DCMAKE_BUILD_TYPE=${CONFIG}
 
-  cmake --build build_${ARCH}_${CONFIG} --config ${CONFIG} -- -arch ${ARCH} ONLY_ACTIVE_ARCH=YES
+  cmake --build build_${ARCH}_${CONFIG} --config ${CONFIG} --parallel -- -arch ${ARCH} ONLY_ACTIVE_ARCH=YES
   mkdir -p dist/${ARCH}/${CONFIG}
   cmake --install build_${ARCH}_${CONFIG} --config ${CONFIG} --prefix dist/${ARCH}/${CONFIG}
 }
