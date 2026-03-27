@@ -27,13 +27,10 @@ if ($Configuration -eq "Release") {
   $extraFlag = "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebugDLL"
 }
 
-# if CUDA_PATH exists on env variables, then build with CUDA
-$cudaBuild = [System.Environment]::GetEnvironmentVariable("CUDA_PATH", "Machine")
-$hipBuild = [System.Environment]::GetEnvironmentVariable("HIP_PATH", "Machine")
-if ($cudaBuild -ne $null) {
-  $cudaPathUnix = $cudaBuild -replace '\\', '/'
+if ($Acceleration -eq "nvidia") {
+  $cudaPathUnix = $env:CUDA_PATH -replace '\\', '/'
   $accelFlag = " -DWITH_CUDA=ON -DWITH_FLASH_ATTN=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`" -DWITH_HIP=OFF"
-} elseif ($hipBuild -ne $null) {
+} elseif ($Acceleration -eq "amd") {
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
     "-DCMAKE_HIP_ARCHITECTURES=`"$env:AMD_GPU_TARGETS`" " +
@@ -41,7 +38,7 @@ if ($cudaBuild -ne $null) {
     "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
     "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe' " +
-    "-DCMAKE_CXX_FLAGS=`"-Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-literal-operator -Wno-ignored-attributes -Wno-ignored-pragmas -Wno-unused-parameter -Wno-unused-result -Wno-unused-value -Wno-unused-variable -Wno-reorder-ctor`""
+    "-DCMAKE_CXX_FLAGS=`"--no-warnings`""
   $env:ROCM_PATH = $env:HIP_PATH
 } else {
   $accelFlag = "-DWITH_CUDA=OFF -DWITH_HIP=OFF"
