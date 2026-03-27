@@ -30,6 +30,7 @@ function build_for_arch() {
   ARCH=$1
   echo "Building for ${ARCH}"
   cmake . -B build_${ARCH}_${CONFIG}_${ACCEL} \
+    -DCMAKE_GENERATOR="Unix Makefiles" \
     -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DOPENMP_RUNTIME=COMP \
