@@ -1,6 +1,8 @@
 /*
 
 !/.github
+!build_ct2_linux.sh
+!build_sp_linux.sh
 !build_ct2_macos.sh
 !build_sp_macos.sh
 !build_ct2_windows.ps1
