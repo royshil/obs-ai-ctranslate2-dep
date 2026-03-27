@@ -19,7 +19,7 @@ cmake . -B build_$Configuration `
     -DBUILD_SHARED_LIBS=ON `
     $runtimeFlag
 
-cmake --build build_$Configuration --config $Configuration
+cmake --build build_$Configuration --config $Configuration --parallel
 
 New-Item -ItemType Directory -Force -Path "..\dist\"
 

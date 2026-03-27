@@ -34,18 +34,10 @@ if ($cudaBuild -ne $null) {
   $cudaPathUnix = $cudaBuild -replace '\\', '/'
   $accelFlag = " -DWITH_CUDA=ON -DWITH_FLASH_ATTN=ON -DCUDA_TOOLKIT_ROOT_DIR=`"$cudaPathUnix`" -DWITH_HIP=OFF"
 } elseif ($hipBuild -ne $null) {
-  # List supported ROCm GPU targets in ROCm 6.4.2, and also some unsupported ones that might work
-  # See https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html and https://rocm.docs.amd.com/en/docs-6.4.2/reference/gpu-arch-specs.html
-  # gfx950 is supported in 7.1.0 but not 6.4.2 that we're using
-  # Fully supported GPU targets (runtime & SDK): gfx1030 gfx1100 gfx1101 gfx1102 gfx1151 gfx1200 gfx1201
-  # Runtime supported GPU targets: gfx1031 gfx1032
-  # Unsupported GPU targets that probably won't work: gfx803 gfx900 gfx906 gfx908 gfx90a gfx942 gfx950 gfx1010 gfx1011 gfx1012 gfx1150 gfx1152
-  # Non-working GPU targets that have caused build failures: gfx950 gfx1010
-  $gpuTargets = "`"gfx1030;gfx1031;gfx1032;gfx1100;gfx1101;gfx1102;gfx1150;gfx1151;gfx1152;gfx1200;gfx1201`""
   $accelFlag = " -DWITH_CUDA=OFF " +
     "-DWITH_HIP=ON " +
-    "-DCMAKE_HIP_ARCHITECTURES=$gpuTargets " +
-    "-DGPU_TARGETS=$gpuTargets " +
+    "-DCMAKE_HIP_ARCHITECTURES=`"$env:AMD_GPU_TARGETS`" " +
+    "-DGPU_TARGETS=`"$env:AMD_GPU_TARGETS`" " +
     "-DCMAKE_GENERATOR=`"Unix Makefiles`" " +
     "-DCMAKE_C_COMPILER='$env:HIP_PATH\bin\clang.exe' " +
     "-DCMAKE_CXX_COMPILER='$env:HIP_PATH\bin\clang++.exe' " +
@@ -70,7 +62,7 @@ $command = "cmake . -B build_$Configuration " +
 Write-Host $command
 Invoke-Expression $command
 
-cmake --build build_$Configuration --config $Configuration
+cmake --build build_$Configuration --config $Configuration --parallel
 
 New-Item -ItemType Directory -Force -Path "..\dist\"
 
