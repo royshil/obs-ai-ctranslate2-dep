@@ -23,14 +23,7 @@ extra_cxx_flags="-fPIC"
 if [[ ${ACCEL} = "nvidia" ]]; then
   additional_args="-DWITH_CUDA=ON -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=OFF"
 elif [[ ${ACCEL} = "amd" ]]; then
-  additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=ON -DCMAKE_C_COMPILER=hipcc -DCMAKE_CXX_COMPILER=hipcc"
-
-  # GPU_TARGETS and CMAKE_HIP_ARCHITECTURES seems to be broken on Linux v.v
-  readarray -d ";" -t gpu_targets <<< $AMD_GPU_TARGETS
-  for target in "${gpu_targets[@]}"
-  do
-    extra_cxx_flags="${extra_cxx_flags} --offload-arch=${target}"
-  done
+  additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=ON -DCMAKE_C_COMPILER=hipcc -DCMAKE_CXX_COMPILER=hipcc \"-DCMAKE_HIP_ARCHITECTURES=${AMD_GPU_TARGETS}\" \"-DGPU_TARGETS=${AMD_GPU_TARGETS}\""
 else
   additional_args="-DWITH_CUDA=OFF -DWITH_CUDNN=OFF -DWITH_TENSOR_PARALLEL=OFF -DWITH_HIP=OFF"
 fi
