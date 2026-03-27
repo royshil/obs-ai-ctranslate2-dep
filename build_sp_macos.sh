@@ -20,7 +20,7 @@ function build_for_arch() {
   ARCH=$1
   echo "Building for ${ARCH}"
   cmake . -B build_${ARCH}_${CONFIG} \
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
     -DSPM_ENABLE_SHARED=OFF \
     -DCMAKE_GENERATOR=Xcode \
     -DCMAKE_BUILD_TYPE=${CONFIG}
